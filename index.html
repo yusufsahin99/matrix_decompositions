@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrix Transformation 3D Plot</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+    #input-container { display: flex; justify-content: space-around; align-items: center; padding: 20px; }
+    #matrix-input { width: 200px; }
+  </style>
+</head>
+<body>
+  <div id="input-container">
+    <div>
+      <h2>Enter a 3x3 Matrix:</h2>
+      <textarea id="matrix-input" rows="3" cols="10"></textarea>
+      <button onclick="applyTransformation()">Apply Transformation</button>
+    </div>
+    <div id="plot-container"></div>
+  </div>
+
+  <script>
+    // Function to parse the matrix input and apply the transformation
+    function applyTransformation() {
+      const matrixInput = document.getElementById('matrix-input').value;
+      const matrixRows = matrixInput.trim().split('\n');
+      const matrix = matrixRows.map(row => row.split(/\s+/).map(Number));
+
+      // Create a 3D plot using Three.js
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(400, 400);
+      document.getElementById('plot-container').innerHTML = '';
+      document.getElementById('plot-container').appendChild(renderer.domElement);
+
+      // Create a cube geometry
+      const geometry = new THREE.BoxGeometry();
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      const cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
+
+      // Apply the matrix transformation to the cube
+      const transformationMatrix = new THREE.Matrix4();
+      transformationMatrix.set(...matrix[0], 0, ...matrix[1], 0, ...matrix[2], 0, 0, 0, 0, 1);
+
+      cube.applyMatrix4(transformationMatrix);
+
+      // Position the camera
+      camera.position.z = 5;
+
+      // Render the scene
+      const animate = function () {
+        requestAnimationFrame(animate);
+
+        // Rotate the cube for visualization
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+
+        renderer.render(scene, camera);
+      };
+
+      animate();
+    }
+  </script>
+</body>
+</html>
